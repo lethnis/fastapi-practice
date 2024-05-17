@@ -24,7 +24,7 @@ def vote(vote: VoteAction, db: Session = Depends(get_db), current_user: int = De
 
         if found_vote is not None:
             raise HTTPException(
-                status.HTTP_409_CONFLICT, f"User {current_user.id} has already voted on post {vote.post_id}"
+                status.HTTP_403_FORBIDDEN, f"User {current_user.id} has already voted on post {vote.post_id}"
             )
 
         new_vote = VotesTable(post_id=vote.post_id, user_id=current_user.id)
@@ -34,7 +34,7 @@ def vote(vote: VoteAction, db: Session = Depends(get_db), current_user: int = De
 
     elif vote.direction == 0:
         if found_vote is None:
-            raise HTTPException(status.HTTP_404_NOT_FOUND, "you can't unlike post you didn't like in the first place")
+            raise HTTPException(status.HTTP_403_FORBIDDEN, "you can't unlike post you didn't like in the first place")
 
         vote_query.delete(synchronize_session=False)
         db.commit()

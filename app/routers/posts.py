@@ -23,6 +23,7 @@ def get_posts(
         db.query(PostTable, func.count(VotesTable.post_id).label("votes"))
         .join(VotesTable, VotesTable.post_id == PostTable.id, isouter=True)
         .group_by(PostTable.id)
+        .order_by(PostTable.id)
         .filter(PostTable.title.contains(search))
         .limit(limit)
         .offset(offset)
@@ -72,7 +73,7 @@ def delete_post(id: int, db: Session = Depends(get_db), current_user: int = Depe
         raise HTTPException(status.HTTP_404_NOT_FOUND, detail={"message": f"Not found post with id {id}"})
 
     if post.first().user_id != current_user.id:
-        raise HTTPException(status.HTTP_403_FORBIDDEN, detail={"message": "what are you think you're doing?"})
+        raise HTTPException(status.HTTP_403_FORBIDDEN, detail={"message": "You can't delete others peoples posts"})
 
     post.delete(synchronize_session=False)
     db.commit()
